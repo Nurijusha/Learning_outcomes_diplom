@@ -1,5 +1,3 @@
-# automated-testing-repository
-
 # Run locally
 
 ## Web
