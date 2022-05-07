@@ -12,44 +12,58 @@ app = Flask(__name__)
 api = Api(app)
 
 
-@app.route('/api/do_tests/', methods=['GET'])
-@app.route('/api/do_tests', methods=['GET'])
+def get_score(percentage):
+    """ Return score from percentage for learning outcome. """
+    if percentage >= 95:
+        result = 5
+    elif percentage >= 80:
+        result = 4
+    elif percentage >= 70:
+        result = 3
+    else:
+        result = 2
+
+    return result
+
+
+@app.route('/do-tests/', methods=['GET'])
+@app.route('/do-tests', methods=['GET'])
 def add_message():
     data = request.get_json()
 
     if not data:
         return Response(status=404)
 
-    url = data.get('github_url')
+    url: str = data.get('github_url')
     if not url:
         return Response(status=404)
-
-    logger.info(f'New url: {url}')
-
-    solution = SolutionTests(url)
-    result, timeout_count = solution.run_tests()
-
-    if isinstance(result, bool):
+    if not url.startswith('https://github.com/'):
         return jsonify({
             'github_url': url,
             'result': 'error'
         })
 
-    if result >= 95:
-        result = 5
-    elif result >= 80:
-        result = 4
-    elif result >= 70:
-        result = 3
-    else:
-        result = 2
+    logger.info(f'New url: {url}')
+
+    solution = SolutionTests(url)
+    result, access_time = solution.run_tests()
+
+    if isinstance(result, bool) or isinstance(access_time, bool):
+        return jsonify({
+            'github_url': url,
+            'result': 'error'
+        })
+
+    result = get_score(result)
+    access_time = get_score(access_time)
 
     return jsonify({
         'github_url': url,
         'result': result,
-        'timeout_count': timeout_count
+        'access_time': access_time
     })
 
 
 if __name__ == '__main__':
-    app.run(port=5001, debug=False)
+    app.run(port=6000, debug=True)
+    logger.info('i am started')

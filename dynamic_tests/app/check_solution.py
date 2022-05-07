@@ -32,21 +32,21 @@ class SolutionTests:
 
         try:
             self.repo = Repo.clone_from(self.url, self.dir_with_repo)
-        except:
+        except Exception as e:
             logger.error(f'Error when cloning repository. url - {self.url}')
             return False
         if self.repo:
             return True
         return False
 
-    def run_tests(self) -> tuple[float | bool, int]:
+    def run_tests(self) -> tuple[float, float] | tuple[bool, bool]:
         """
         Performs dynamic testing and returns the result as a percentage.
         :return: percentage of correctly solved tasks
         """
         downloaded = self._download_code()
         if not downloaded:
-            return False, self.timeout_count
+            return False, False
         if os.path.isdir(self.dir_with_repo):
             result = testing(self.dir_with_repo)
             if result:
@@ -55,15 +55,20 @@ class SolutionTests:
                      self.timeout_count) = result
                     logger.info(
                         f'Accepted count - {self.accepted_solutions}, '
-                        f'Total tasks count - {self.tasks_count}')
+                        f'Total tasks count - {self.tasks_count}, '
+                        f'Timeout count - {self.timeout_count}'
+                    )
                 except TypeError or ValueError:
                     pass
             else:
-                return False, self.timeout_count
+                return False, False
         self._delete_dir_with_repo()
         # Percentage of correct solutions
-        percentages = self.accepted_solutions * 100 / self.tasks_count
-        return percentages, self.timeout_count
+        percentages_prog = self.accepted_solutions * 100 / self.tasks_count
+        time_access = self.tasks_count - self.timeout_count
+        # Percentage of access time solutions
+        percentages_timeout = time_access * 100 / self.tasks_count
+        return percentages_prog, percentages_timeout
 
     def _delete_dir_with_repo(self):
         # Delete cloned repository

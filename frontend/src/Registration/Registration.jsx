@@ -26,10 +26,13 @@ function Registration() {
       })
     })
     .then((response) => {
-      return response.json();
-    }).then((data) => {
-      setError(data);
-    });
+      if (response.ok) {
+        navigate(`/send_email?email=${email}`)
+      }
+      response.json().then(value => {
+        setError(value);
+      })
+    })
   }
 
   return (

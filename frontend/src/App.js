@@ -8,6 +8,7 @@ import Auth from "./Auth/Auth";
 import Registration from "./Registration/Registration";
 import Congratulation from "./Congratulation/Congratulation";
 import SendEmail from "./SendEmail/SendEmail";
+import Main from "./Main/Main";
 
 import './App.css';
 
@@ -26,6 +27,9 @@ function App() {
         </Routes>
         <Routes>
           <Route exact path="/send_email" element={<SendEmail />} />
+        </Routes>
+        <Routes>
+          <Route exact path="/main" element={<Main />} />
         </Routes>
       </div>
     </Router>

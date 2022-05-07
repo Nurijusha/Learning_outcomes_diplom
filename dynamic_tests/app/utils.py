@@ -66,4 +66,6 @@ def auto_tests(solution_file: str, test_cases: dict, timeout: int):
 
         accepted, comment = run_test(solution_file, _input, expected, timeout)
         results.append(TestResult(i, accepted, comment))
+        if comment == 'TIMEOUT':
+            break
     return results

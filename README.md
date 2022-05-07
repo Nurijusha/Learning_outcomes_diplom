@@ -1,35 +1,83 @@
 # automated-testing-repository
 
-# Run locally
+### Описание
+Автоматическая проверка решений задач обучающего курса по github url и получение уровней образовательных результатов. Репозиторий с решениями пользователей создаются из [шаблона](https://github.com/rustamwho/solutions_template).
 
-## Web
-#### Development with default SQLite database
-1) Install requirements from web/requirements.txt
-2) Create .env file from .env_example in web directory with your smtp parameters (for sending activation email)
-3) In command line from directory web:
-```shell
-# Migrate all models to db
-python manage.py makemigrations
-python manage.py migrate
+Функционал для пользователей:
+1) Просмотр всех модулей и задач
+2) Отправка url github-репозитория со своими решениями для проверки
+3) Просмотр результатов проверки с уровнями для каждого образовательного результата и рекомендациями
+4) Просмотр результатов прошлых проверок с подсчетом средних значений по каждому образовательному результату
+5) Просмотр автообновляемого API backend-а
 
-# Create admin user for admin panel
-python manage.py createsuperuser 
+---
+### Технологии
+Backend:
+- Python 3.10
+- Django 4.0.4
+- Docker 20.10.14
+- Docker-compose 1.29.2
+- База данных PostgreSQL
+- Nginx 1.21.3
+- Celery
+- Redis
+- Flask 2.1.1
 
-# Run server
-python manage.py runserver   
+Frontend:
+- React
+
+---
+### Запуск докер контейнеров
+1. Установите Docker.
+
+   #### Windows или MacOS:
+    * **Для Windows 10** Установите [WSL](https://docs.microsoft.com/ru-ru/windows/wsl/install-win10)
+    * Скачайте и установите [Docker Desktop](https://www.docker.com/products/docker-desktop)
+    * **При необходимости** настройте выделяемые ресурсы для виртуальных машин (_Settings_ -> _Resources_)
+   * **Для Windows** интегрируйте Docker с дистрибутивом Linux (WSL 2) (_Settings_ -> _Resources_ -> _WSL integration_ -> _Поставить галочку и вклюить ползунок_)
+
+   #### Linux:
+   * Следуйте [инструкции](https://docs.docker.com/engine/install/ubuntu/)
+
+2. Установите [Git](https://git-scm.com/book/ru/v2/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-Git)
+3. Склонируйте этот репозиторий в любую папку
+4. В директории django-проекта ([web](./web)) отредактируйте файл *.env_example* с переменными окружения и сохраните как *.env*:
+```yaml
+  EMAIL_HOST_USER=test@gmail.com # почтовый ящик с которого будут отправляться письма для активации
+  EMAIL_HOST_PASSWORD=test1223 # пароль почтового ящика
+
+  DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
+  DB_NAME=postgres # имя базы данных
+  POSTGRES_USER=postgres # логин для подключения к базе данных
+  POSTGRES_PASSWORD=postgres # пароль для подключения к БД (установите свой)
+  DB_HOST=db # название сервиса (контейнера)
+  DB_PORT=5432 # порт для подключения к БД
 ```
-4) Server started at localhost with 8000 port and all the api endpoints are ready to connection.
+**Внимание!** Для почтового ящика должен быть настроен SMTP-сервер и разрешен доступ с непроверенных приложений.
 
-**API specification** at (http://127.0.0.1:8000 +):
-- JSON view at /swagger.json
-- YAML view at /swagger.yaml
-- swagger-ui view at /swagger/
-- ReDoc view at /redoc/
+5. В терминале перейдите в директорию /infra, где находится файл docker-compose.yml
+6. Выполните команду:
+```bash
+  docker-compose up -d
+```
+7. Для выполнения миграций и сборки статики последовательно выполните команды:
+```bash
+  docker-compose exec web python manage.py migrate --noinput
+  docker-compose exec web python manage.py collectstatic --no-input
+```
+8. Для создания суперпользователя выполните команду:
+```bash
+   docker-compose exec web python manage.py createsuperuser
+```
 
-## Dynamic tests
-#### Development
-1) Install requirements from dynamic_tests/app/requirements.txt
-2) Run app.py
+---
+### Администрирование проекта
+Проект будет доступен локально по адресу 127.0.0.1 (localhost). Весь функционал можно протестировать.
 
-- Create test_cases for each solution in [test_cases.py](dynamic_tests/app/test_cases.py)
-- Add solution file names and their test cases to dict in [tests.py](dynamic_tests/app/tests.py)
+Все доступные api описаны в двух представлениях:
+- Swagger-ui - localhost/swagger/
+- ReDoc - localhost/redoc/
+
+Админская панель:
+- Заходим по адресу localhost/admin
+- Вводим логин и пароль суперпользователя

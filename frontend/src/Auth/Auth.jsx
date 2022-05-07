@@ -25,12 +25,19 @@ function Auth() {
       body: JSON.stringify({
         password, username
       })
-    }).then((response) => {
-      return response.json();
-    }).then((data) => {
-      setError(data);
-      debugger;
-    });
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then(({ auth_token }) => {
+            sessionStorage.setItem('auth_token', auth_token);
+            sessionStorage.setItem('username', username);
+            navigate("/main")
+          })
+        }
+        response.json().then(value => {
+          setError(value);
+        })
+      });
   }
 
   return (

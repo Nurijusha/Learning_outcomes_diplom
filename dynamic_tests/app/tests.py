@@ -15,6 +15,7 @@ TEST_FILE_TEST_CASE = {
     '/module_1/task_1_cezar.py': tc.TEST_CASE_module_1_task_1,
     '/module_1/task_2_compartment_number.py': tc.TEST_CASE_module_1_task_2,
     '/module_2/task_1_identical_numbers.py': tc.TEST_CASE_module_2_task_1,
+    '/module_2/task_2_vector.py': tc.TEST_CASE_module_2_task_1,
 }
 
 
@@ -33,7 +34,7 @@ def testing(solutions_dir: str) -> tuple[int, int, int]:
             continue
 
         results: list[TestResult] = auto_tests(solution_file, test_cases, 15)
-        logger.info(results)
+        logger.info(f'{solution_file.split("ns/")[1]} - {results}')
         if results:
             # If all test_cases for solution are accepted
             if all(res.accepted for res in results):

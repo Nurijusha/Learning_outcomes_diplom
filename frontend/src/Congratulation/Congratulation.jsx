@@ -6,7 +6,7 @@ import {
 import '../App.css';
 
 function Congratulation() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <div className="contentCenter">
