@@ -1,8 +1,8 @@
-import logger_utils
-
 from flask import Flask, request, jsonify, Response
 
+import logger_utils
 from check_solution import SolutionTests
+from testing.schemas import LearningOutcomeSchema
 
 # Set logging
 logger = logger_utils.setup_applevel_logger()
@@ -10,22 +10,8 @@ logger = logger_utils.setup_applevel_logger()
 app = Flask(__name__)
 
 
-def get_score(percentage):
-    """ Return score from percentage for learning outcome. """
-    if percentage >= 95:
-        result = 5
-    elif percentage >= 80:
-        result = 4
-    elif percentage >= 70:
-        result = 3
-    else:
-        result = 2
-
-    return result
-
-
-@app.route('/do-dynamic-tests/', methods=['GET'])
-@app.route('/do-dynamic-tests', methods=['GET'])
+@app.route('/do-static-tests/', methods=['GET'])
+@app.route('/do-static-tests', methods=['GET'])
 def add_message():
     data = request.get_json()
 
@@ -45,26 +31,24 @@ def add_message():
 
     solution = SolutionTests(url)
     try:
-        result, access_time = solution.run_tests()
+        result = solution.run_tests()
     except Exception:
-        return jsonify({'github_url': url,
-                        'result': 'error', })
+        return jsonify({'github_url': url, 'result': 'error', })
 
-    if isinstance(result, bool) or isinstance(access_time, bool):
+    if isinstance(result, bool):
         return jsonify({
             'github_url': url,
             'result': 'error'
         })
 
-    result = get_score(result)
-    access_time = get_score(access_time)
+    lo_schema = LearningOutcomeSchema(many=True)
+    serialized_data = lo_schema.dump(result)
 
     return jsonify({
         'github_url': url,
-        'result': result,
-        'access_time': access_time
+        'result': serialized_data
     })
 
 
 if __name__ == '__main__':
-    app.run(port=6000, debug=True)
+    app.run(port=6001, debug=True)

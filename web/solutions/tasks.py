@@ -1,13 +1,13 @@
 import requests
-import logging
+from celery.utils.log import get_task_logger
 
 from celery import shared_task, states
 from celery.result import AsyncResult
 from celery.exceptions import Ignore
 
-from .models import Solution, LearningOutcome, SolutionTesting
+from .models import Solution, LearningOutcome, SolutionTesting, Recommendation
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 
 def create_save_learning_outcome(solution: Solution, name: str, score: int):
@@ -19,6 +19,31 @@ def create_save_learning_outcome(solution: Solution, name: str, score: int):
     logger.info(f'Create new Learning Outcome ({learning_outcome}) for '
                 f'Solution ({solution})')
     learning_outcome.save()
+
+
+def create_save_learning_outcome_with_recs(solution: Solution,
+                                           lo_result: dict):
+    name = lo_result.get('name')
+    score = lo_result.get('score')
+    if not all((name, score)):
+        return
+    learning_outcome = LearningOutcome(
+        solution=solution,
+        name=name,
+        score=score
+    )
+    learning_outcome.save()
+    recs_dict = lo_result.get('recommendations')
+    if recs_dict:
+        for rec in recs_dict:
+            recommendation, _ = Recommendation.objects.get_or_create(
+                name=rec['name'],
+                task=rec['task']
+            )
+            learning_outcome.recommendations.add(recommendation)
+
+    logger.info(f'Create new Learning Outcome ({learning_outcome}) for '
+                f'Solution ({solution})')
 
 
 def check_set_status_solution_testing(dynamic_test_task_id: str = None,
@@ -72,17 +97,30 @@ def check_set_status_solution_testing(dynamic_test_task_id: str = None,
     solution_testing.save()
 
 
-def set_task_state(task: shared_task, state: str = states.FAILURE):
+def set_task_state(dynamic_testing_task: shared_task = None,
+                   static_testing_task: shared_task = None,
+                   state: str = states.FAILURE):
     """
     Set task state and solution_celery_task status to <state> parameter.
+    And update state of SolutionTesting object.
 
-    :param task: shared_task object
+    :param dynamic_testing_task: shared_task object
+    :param static_testing_task: shared_task object
     :param state: new state for task. Default - FAILURE
     :return: None
     """
-    task.update_state(state=state)
+    # If called from dynamic testing
+    if dynamic_testing_task:
+        dynamic_testing_task.update_state(state=state)
+        check_set_status_solution_testing(
+            dynamic_test_task_id=dynamic_testing_task.request.id,
+            status=state
+        )
+        return
+    # If called from static testing
+    static_testing_task.update_state(state=state)
     check_set_status_solution_testing(
-        dynamic_test_task_id=task.request.id,
+        static_test_task_id=static_testing_task.request.id,
         status=state
     )
 
@@ -95,14 +133,14 @@ def dynamic_testing(self, github_url: str, solution_id: int):
     solution = Solution.objects.filter(id=solution_id).first()
     # If solution deleted from other task
     if not solution:
-        set_task_state(self)
+        set_task_state(dynamic_testing_task=self)
         # Without this raise, task state will be set to SUCCESS
         raise Ignore()
 
     try:
         payload = {'github_url': github_url}
         # Run dynamic testing
-        response = requests.get('http://dynamic-tests:6000/do-tests',
+        response = requests.get('http://dynamic-tests:6000/do-dynamic-tests/',
                                 json=payload,
                                 timeout=360)
         response = response.json()
@@ -119,11 +157,46 @@ def dynamic_testing(self, github_url: str, solution_id: int):
              'задачам'),
             int(response.get('access_time'))
         )
-        check_set_status_solution_testing(
-            dynamic_test_task_id=self.request.id)
+        set_task_state(dynamic_testing_task=self, state=states.SUCCESS)
     except Exception as e:
         logger.error(e)
         # Delete solution, because testing Failed
         solution.delete()
-        set_task_state(self)
+        set_task_state(dynamic_testing_task=self)
+        raise Ignore()
+
+
+@shared_task(bind=True)
+def static_testing(self, github_url: str, solution_id: int):
+    """
+    Running static testing. Save resulting learning outcomes.
+    """
+    solution = Solution.objects.filter(id=solution_id).first()
+    # If solution deleted from other task
+    if not solution:
+        set_task_state(static_testing_task=self)
+        # Without this raise, task state will be set to SUCCESS
+        raise Ignore()
+
+    try:
+        payload = {'github_url': github_url}
+        # Run dynamic testing
+        response = requests.get('http://static-tests:6001/do-static-tests/',
+                                json=payload,
+                                timeout=360)
+        response = response.json()
+        if response.get('result') == 'error':
+            set_task_state(self)
+            raise Ignore()
+        for learning_outcome in response['result']:
+            create_save_learning_outcome_with_recs(
+                solution=solution,
+                lo_result=learning_outcome,
+            )
+        set_task_state(static_testing_task=self, state=states.SUCCESS)
+    except Exception as e:
+        logger.error(e)
+        # Delete solution, because testing Failed
+        solution.delete()
+        set_task_state(static_testing_task=self)
         raise Ignore()

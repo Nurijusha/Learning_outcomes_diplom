@@ -65,14 +65,17 @@ class SolutionTestingCreateAPIView(APIView):
         solution = Solution(author=user, github_url=github_url)
         solution.save()
 
-        # Running dynamic testing and save celery task
+        # Running dynamic testing and save celery task id
         dt_task = tasks.dynamic_testing.delay(github_url, solution.id)
+        # Running static testing and save celery task id
+        st_task = tasks.static_testing.delay(github_url, solution.id)
 
         # Create SolutionCeleryTask with dynamic and static tests
         solution_testing = SolutionTesting(
             solution=solution,
             user=user,
             dynamic_test_task_id=dt_task.id,
+            static_test_task_id=st_task.id,
             status='STARTED'
         )
         solution_testing.save()

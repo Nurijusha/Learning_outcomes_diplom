@@ -13,7 +13,8 @@
 ---
 ### Технологии
 Backend:
-- Python 3.10
+- Python 3.10 (django, dynamic-tests)
+- Python 3.9 (static-tests)
 - Django 4.0.4
 - Docker 20.10.14
 - Docker-compose 1.29.2

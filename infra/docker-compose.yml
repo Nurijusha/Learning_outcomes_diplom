@@ -37,6 +37,20 @@ services:
     depends_on:
       - web
 
+  static-tests:
+    build:
+      context: ../static_tests
+      dockerfile: Dockerfile
+    # in other platforms - Bus error with cdmpyparser
+    platform: linux/amd64
+    container_name: static-tests
+    command: gunicorn --bind 0.0.0.0:6001 manage:app
+    ports:
+      - "6001:6001"
+    restart: always
+    depends_on:
+      - web
+
   celery:
     restart: always
     build:
