@@ -1,18 +1,18 @@
 import sys
 from subprocess import PIPE, TimeoutExpired, run
 from collections import namedtuple
-from collections.abc import Iterable
 
 TestResult = namedtuple('TestResult', 'number accepted comment')
 
 
-def get_input_text(test_input: Iterable) -> str:
+def get_text_from_case(test_iter: tuple | list) -> str:
     """
-    Return raw string from iterable object to pass to the subprocess input.
-    :param test_input: iterable object with lines for script`s stdin
+    Return raw string from iterable object to pass to the subprocess input
+    or output.
+    :param test_iter: iterable object with lines for script`s stdin
     :return: e.g. "2\n3\n4\n"
     """
-    return '\n'.join(str(s) for s in test_input)
+    return '\n'.join(str(s) for s in test_iter)
 
 
 def run_test(solution_file: str, test_input: str, expected: str,
@@ -33,7 +33,7 @@ def run_test(solution_file: str, test_input: str, expected: str,
             stdout=PIPE,
             stderr=PIPE,
             timeout=timeout,
-            encoding='ascii'
+            encoding='utf-8'
         )
     except TimeoutExpired:
         return False, 'TIMEOUT'
@@ -41,7 +41,7 @@ def run_test(solution_file: str, test_input: str, expected: str,
     if proc.returncode:
         return False, 'ERROR'
 
-    if str(proc.stdout.rstrip()) == str(expected):
+    if str(proc.stdout.strip()) == str(expected):
         return True, 'ACCESS'
     else:
         return False, 'WRONG ANSWER'
@@ -59,10 +59,14 @@ def auto_tests(solution_file: str, test_cases: dict, timeout: int):
     for i, test in enumerate(test_cases.items()):
         _input, expected = test
         # Prepare input string
-        if isinstance(_input, Iterable):
-            _input = get_input_text(_input)
+        if isinstance(_input, (tuple, list)):
+            _input = get_text_from_case(_input)
         else:
             _input = str(_input)
+
+        # Prepare output string
+        if isinstance(expected, (tuple, list)):
+            expected = get_text_from_case(expected)
 
         accepted, comment = run_test(solution_file, _input, expected, timeout)
         results.append(TestResult(i, accepted, comment))

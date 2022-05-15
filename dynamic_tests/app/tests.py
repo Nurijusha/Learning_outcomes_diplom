@@ -12,10 +12,10 @@ logger = logger_utils.get_logger(__name__)
 
 # { <solution_file> : <test_cases> } for all solutions
 TEST_FILE_TEST_CASE = {
-    '/module_1/task_1_cezar.py': tc.TEST_CASE_module_1_task_1,
-    '/module_1/task_2_compartment_number.py': tc.TEST_CASE_module_1_task_2,
-    '/module_2/task_1_identical_numbers.py': tc.TEST_CASE_module_2_task_1,
-    '/module_2/task_2_vector.py': tc.TEST_CASE_module_2_task_1,
+    '/module_1/task_1_beautiful_number.py': tc.TEST_CASE_module_1_task_1,
+    '/module_3/task_1_basic_operations.py': tc.TEST_CASE_module_3_task_1,
+    '/module_4/task_1_cezar.py': tc.TEST_CASE_module_4_task_1,
+    '/module_4/task_2_genetics.py': tc.TEST_CASE_module_4_task_2,
 }
 
 

@@ -11,6 +11,9 @@ logger = get_task_logger(__name__)
 
 
 def create_save_learning_outcome(solution: Solution, name: str, score: int):
+    """
+    Create, save and return new LearningOutcome with received parameters.
+    """
     learning_outcome = LearningOutcome(
         solution=solution,
         name=name,
@@ -19,20 +22,21 @@ def create_save_learning_outcome(solution: Solution, name: str, score: int):
     logger.info(f'Create new Learning Outcome ({learning_outcome}) for '
                 f'Solution ({solution})')
     learning_outcome.save()
+    return learning_outcome
 
 
 def create_save_learning_outcome_with_recs(solution: Solution,
                                            lo_result: dict):
+    """
+    Creating LearningOutcome with its recommendations.
+    """
     name = lo_result.get('name')
     score = lo_result.get('score')
     if not all((name, score)):
         return
-    learning_outcome = LearningOutcome(
-        solution=solution,
-        name=name,
-        score=score
-    )
-    learning_outcome.save()
+    learning_outcome = create_save_learning_outcome(solution=solution,
+                                                    name=name,
+                                                    score=score)
     recs_dict = lo_result.get('recommendations')
     if recs_dict:
         for rec in recs_dict:
@@ -41,9 +45,6 @@ def create_save_learning_outcome_with_recs(solution: Solution,
                 task=rec['task']
             )
             learning_outcome.recommendations.add(recommendation)
-
-    logger.info(f'Create new Learning Outcome ({learning_outcome}) for '
-                f'Solution ({solution})')
 
 
 def check_set_status_solution_testing(dynamic_test_task_id: str = None,

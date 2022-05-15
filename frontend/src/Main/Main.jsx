@@ -49,6 +49,59 @@ function Main() {
       })
   }
 
+  const checkUrl = () => {
+    fetch(`/api/solution-testing/`, {
+      method: "POST",
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+      }),
+      body: JSON.stringify({
+        github_url: email
+      })
+    })
+      .then((response) => {
+        response.json().then(value => {
+          checkUrl2(value.id)
+        })
+      })
+  }
+
+  const checkUrl2 = (id) => {
+    let timerId = setInterval(() => {
+      fetch(`/api/solution-testing/${id}/`, {
+        method: "GET",
+        headers: new Headers({
+          'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+        })
+      })
+        .then((response) => {
+          response.json().then(value => {
+            if (value.status === "SUCCESS") {
+              clearInterval(timerId);
+              getSolutions(value.id)
+            }
+          })
+        })
+    }, 5000);
+  }
+
+  const getSolutions = (id) => {
+    fetch(`/api/solutions/${id}/`, {
+      method: "GET",
+      headers: new Headers({
+        'Authorization': `Token ${sessionStorage.getItem('auth_token')}`,
+      })
+    })
+      .then((response) => {
+        response.json().then(value => {
+          navigate("/solution", {
+            state: value
+          })
+        })
+      })
+  }
+
   useEffect(getTopics, [])
 
   return (
@@ -111,6 +164,7 @@ function Main() {
               fullWidth
               margin="normal"
             />
+            <Button variant="contained" onClick={checkUrl}>Проверить</Button>
           </div>
         </div>
       </div>
