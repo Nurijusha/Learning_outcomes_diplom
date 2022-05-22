@@ -24,8 +24,8 @@ def four(file_list: list):
     for operator, task in (('-=', 'Модуль 6. Задача 1.'),
                            ('*=', 'Модуль 6. Задача 5.'),
                            ('+=', 'Модуль 6. Задача 2.')):
-        if search_with_func(file_list, pattern=operator,
-                            func=parsers.is_exists_pattern):
+        if search_with_func(file_list, operator=operator,
+                            func=parsers.is_exists_arithmetic_operator):
             continue
         recommendations.append(
             Recommendation(
@@ -39,8 +39,8 @@ def four(file_list: list):
 def three(file_list: list):
     recommendations = []
     for operator in ('%', '//', '**', '/', '*', '-', '+'):
-        if search_with_func(file_list, pattern=operator,
-                            func=parsers.is_exists_pattern):
+        if search_with_func(file_list, operator=operator,
+                            func=parsers.is_exists_arithmetic_operator):
             continue
         recommendations.append(
             Recommendation(

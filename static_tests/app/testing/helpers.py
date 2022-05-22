@@ -29,3 +29,23 @@ def search_with_func(file_list: list, func: Callable, *args, **kwargs) -> bool:
         if func(file, *args, **kwargs):
             return True
     return False
+
+
+def get_score_from_maintainability_indexes(mis: list[float]) -> int:
+    """
+    Calculate score from maintainability_index of all files.
+
+    :param mis: maintainability_indexes list
+    :return: score for this learning outcome
+    """
+    all_mi_count = len(mis)
+    accepted_count = len([mi for mi in mis if mi >= 75])
+    percentage = accepted_count * 100 / all_mi_count
+
+    if percentage >= 95:
+        return 5
+    if percentage >= 80:
+        return 4
+    if percentage >= 70:
+        return 3
+    return 2

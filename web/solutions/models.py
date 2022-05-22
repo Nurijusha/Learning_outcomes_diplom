@@ -37,7 +37,7 @@ class Solution(models.Model):
 
 class Recommendation(models.Model):
     name = models.CharField(
-        max_length=100,
+        max_length=255,
         verbose_name='Необходимо повторить или изучить',
     )
     task = models.CharField(
@@ -61,7 +61,7 @@ class LearningOutcome(models.Model):
         verbose_name='Решение',
     )
     name = models.CharField(
-        max_length=100,
+        max_length=255,
         verbose_name='Название образовательного результата',
     )
     score = models.PositiveSmallIntegerField(

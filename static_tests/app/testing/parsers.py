@@ -1,6 +1,24 @@
 import re
 
 
+# TODO: добавить удаление docstring перед проверкой
+
+def is_exists_pattern(file_name: str, pattern: str) -> bool:
+    """
+    Search only pattern in file.
+
+    :param file_name: str of the file for matching
+    :param pattern: pattern for searching
+    :return: True if pattern is exists, else - False
+    """
+    pattern = fr'{pattern}'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
 def is_exists_overload_arithmetic(file_name: str, operator: str) -> bool:
     """
     Search overloading arithmetic operators.
@@ -19,18 +37,33 @@ def is_exists_overload_arithmetic(file_name: str, operator: str) -> bool:
     return False
 
 
-def is_exists_pattern(file_name: str, pattern: str) -> bool:
+def is_exists_arithmetic_operator(file_name: str, operator: str) -> bool:
     """
-    Search pattern in file.
-    Final pattern for matching: fr'^\s*\w+\s*\{pattern}\s*\w+'.
+    Search using arithmetic operator in file.
+    Final pattern for matching: fr'^.+ ?\{operator} ?.+'
 
     :param file_name: str of the file for matching
-    :param pattern: pattern for searching
+    :param operator: operator for searching
     :return: True if pattern is exists in file, else - False
     """
-    # ^\s* - строка начинается с 0 или более пробелов
-    # \w+ - любой символ, котороый может быть переменной (буквы, цифры и _)
-    pattern = fr'^\s*\w+\s*\{pattern}\s*\w+'
+    pattern = fr'^.+ ?\{operator} ?.+'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_logic_operator(file_name: str, operator: str) -> bool:
+    """
+    Search using logical operator in file.
+    Final pattern for matching: fr'^.+ ?{operator} ?.+'.
+
+    :param file_name: str of the file for matching
+    :param operator: operator for searching
+    :return: True if pattern is exists in file, else - False
+    """
+    pattern = fr'^.+ ?{operator} ?.+'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -82,7 +115,7 @@ def is_using_method(file_name: str, method_name: str) -> bool:
     :param method_name: name of the method to search
     :return: True if <method_name> method is using, else - False
     """
-    pattern = fr'^[^#\'\"\n]*\w+.{method_name}\(.+\).*$'
+    pattern = fr'^[^#\'\"\n]*\w+.{method_name}\(.*\).*$'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -377,5 +410,178 @@ def is_exists_creating_set(file_name: str) -> bool:
         match1 = re.findall(pattern1, f, flags=re.MULTILINE)
         match2 = re.findall(pattern2, f, flags=re.MULTILINE)
         if match1 or match2:
+            return True
+    return False
+
+
+def is_exists_nested_loop(file_name: str) -> bool:
+    """
+    Search nested loops. for ... :\\\\n for ... :
+
+    :param file_name: str of the file for matching
+    :return: True if nested loop is exists, else - False
+    """
+    pattern = r'^[^#\'\"\n]*(for .+:)\s+(for .+:)\s*'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_for_range(file_name: str) -> bool:
+    """
+    Search using for operator with range. for ... in range().
+
+    :param file_name: str of the file for matching
+    :return: True if pattern is exists, else - False
+    """
+    pattern = r'^[^#\'\"\n]*for \w+ in range\(\w+\)'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_regex_matching(file_name: str) -> bool:
+    """
+    Search using regex searching. .search() or .findall() or .match()
+    or .fullmatch() or .finditer().
+
+    :param file_name: str of the file for matching
+    :return: True if matching with regex is exists, else - False
+    """
+    pattern = r'^[^#\'\"\n]*.(search|findall|match|fullmatch|finditer)\(.+\)'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_multiple_regex(file_name: str) -> bool:
+    """
+    Search using multiple special regex characters.
+
+    :param file_name: str of the file for matching
+    :return: True if pattern is exists, else - False
+    """
+    # ^[^#\n]* - строка не закомментирована
+    # [\'\"]{1} - кавычки открываются
+    # [^\'\"]* - любые символы кроме этих
+    # (?:\\d|\\D|\\w|\\W|\\s|\\S|\\b|\\B) - комбинация из двух выражений
+    # (между ними нет закрывающей кавычки)
+    pattern = (r'^[^#\n]*[\'\"]{1}[^\'\"]*'
+               r'(?:\\d|\\D|\\w|\\W|\\s|\\S|\\b|\\B)[^\'\"n]*'
+               r'(?:\\d|\\D|\\w|\\W|\\s|\\S|\\b|\\B)')
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_regex_character(file_name: str) -> bool:
+    """
+    Search using special regex characters.
+
+    :param file_name: str of the file for matching
+    :return: True if pattern is exists, else - False
+    """
+    # ^[^#\n]* - строка не закомментирована
+    # [\'\"]{1} - кавычки открываются
+    # [^\'\"]* - любые символы кроме этих
+    # (\\d|\\D|\\w|\\W|\\s|\\S|\\b|\\B) - одно из этих шаблонов
+    pattern = (r'^[^#\n]*[\'\"]{1}[^\'\"]*'
+               r'(\\d|\\D|\\w|\\W|\\s|\\S|\\b|\\B)')
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_import_alias(file_name: str) -> bool:
+    """
+    Search using imports with alias. [import ... as ...].
+
+    :param file_name: str of the file for matching
+    :return: True if import with alias is exists, else - False
+    """
+    pattern = r'^[^#\'\"\n]*import \w+ as \w+$'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_import_from(file_name: str) -> bool:
+    """
+    Search using imports with from. [from ... import ...].
+
+    :param file_name: str of the file for matching
+    :return: True if import with from is exists, else - False
+    """
+    pattern = r'^[^#\'\"\n]*from \w+ import \w+.*$'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_multiple_inheritance(file_name: str) -> bool:
+    """
+    Search using multiple inheritance. [class Cat(Base1, Base2):]
+
+    :param file_name: str of the file for matching
+    :return: True if multiple inheritance is exists, else - False
+    """
+    # ^[^#\'\"\n]*class \w+ ?\(\) - объявляется класс
+    # (\w+,? ?){2,} - есть два или более родительских класса
+    pattern = r'^[^#\'\"\n]*class \w+ ?\((\w+,? ?){2,}\)'
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_super_function(file_name: str) -> bool:
+    """
+    Search using super() function. [ super().__init__() ]
+
+    :param file_name: str of the file for matching
+    :return: True if super() function is exists, else - False
+    """
+    # super\(\w*\). - super(<есть или нет переменной>).
+    # \w+\( - название метода и открывающая скобка
+    pattern = r'^[^#\'\"\n]*super\(\w*\).\w+\('
+    with open(file_name, 'r') as file:
+        match = re.findall(pattern, file.read(), flags=re.MULTILINE)
+        if match:
+            return True
+    return False
+
+
+def is_exists_getter_setters(file_name: str) -> bool:
+    """
+    Search using getters and setters. @property - getter.
+    @var_name.setter - setter.
+
+    :param file_name: str of the file for matching
+    :return: True if getter and setter are exist, else - False
+    """
+    # @property\s+def (?P<var_name>\b\w+)\(.+\): - объявление геттера
+    # @(?P=var_name).setter - объявление сеттера этой же переменной
+    pattern = (r'^[^#\'\"\n]*@property\s+def (?P<var_name>\b\w+)\(.+\):.+'
+               r'@(?P=var_name).setter')
+    with open(file_name, 'r') as file:
+        # DOTALL - чтобы точка в паттерне была и переносом строки
+        match = re.findall(pattern, file.read(),
+                           flags=re.MULTILINE | re.DOTALL)
+        if match:
             return True
     return False

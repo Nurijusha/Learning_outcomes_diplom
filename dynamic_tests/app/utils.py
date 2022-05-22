@@ -1,6 +1,10 @@
+import os
 import sys
 from subprocess import PIPE, TimeoutExpired, run
 from collections import namedtuple
+from logger_utils import get_logger
+
+logger = get_logger(__name__)
 
 TestResult = namedtuple('TestResult', 'number accepted comment')
 
@@ -15,13 +19,15 @@ def get_text_from_case(test_iter: tuple | list) -> str:
     return '\n'.join(str(s) for s in test_iter)
 
 
-def run_test(solution_file: str, test_input: str, expected: str,
-             timeout: int = 15) -> tuple[bool, str]:
+def run_test(solution_file: str, base_dir: str, test_input: str, expected: str,
+             python_path: str, timeout: int = 15) -> tuple[bool, str]:
     """
     Run test case for solution with stdin parameters.
     :param solution_file: path of .py file with solution
+    :param base_dir: path to solutions base_dir
     :param test_input: input string for stdin
     :param expected: expected result from solution
+    :param python_path: PYTHONPATH environment for running subprocess
     :param timeout: time to complete the solution
     :return: bool (ok solution or no) and comment ('ACCEPT', 'WRONG ANSWER',
     'TIMEOUT', 'ERROR')
@@ -33,12 +39,16 @@ def run_test(solution_file: str, test_input: str, expected: str,
             stdout=PIPE,
             stderr=PIPE,
             timeout=timeout,
-            encoding='utf-8'
+            encoding='utf-8',
+            cwd=base_dir,
+            env={'PYTHONPATH': python_path}
         )
     except TimeoutExpired:
         return False, 'TIMEOUT'
 
     if proc.returncode:
+        logger.error(f'ERROR when running with code {proc.returncode} - '
+                     f'{proc.stderr}')
         return False, 'ERROR'
 
     if str(proc.stdout.strip()) == str(expected):
@@ -47,15 +57,22 @@ def run_test(solution_file: str, test_input: str, expected: str,
         return False, 'WRONG ANSWER'
 
 
-def auto_tests(solution_file: str, test_cases: dict, timeout: int):
+def auto_tests(solution_file: str, base_dir: str, test_cases: dict,
+               timeout: int):
     """
     Run all test_cases for <solution_file> and return results [ TestResult() ]
     :param solution_file: path of .py file with solution
+    :param base_dir: path to solutions base_dir
     :param test_cases: test cases dict { input : expected }
     :param timeout: timeout for solution execution
-    :return:
+    :return: list of results
     """
     results = []
+
+    python_path = [p for p in sys.path if p != os.getcwd()]
+    python_path.append(base_dir)
+    python_path = ':'.join(python_path)
+
     for i, test in enumerate(test_cases.items()):
         _input, expected = test
         # Prepare input string
@@ -68,7 +85,13 @@ def auto_tests(solution_file: str, test_cases: dict, timeout: int):
         if isinstance(expected, (tuple, list)):
             expected = get_text_from_case(expected)
 
-        accepted, comment = run_test(solution_file, _input, expected, timeout)
+        accepted, comment = run_test(
+            solution_file=solution_file,
+            base_dir=base_dir,
+            test_input=_input,
+            expected=expected,
+            python_path=python_path,
+            timeout=timeout)
         results.append(TestResult(i, accepted, comment))
         if comment == 'TIMEOUT':
             break

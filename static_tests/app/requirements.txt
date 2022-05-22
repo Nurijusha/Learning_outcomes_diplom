@@ -11,3 +11,9 @@ marshmallow==3.15.0
 
 # Running server
 gunicorn==20.1.0
+
+# Calculate maintainability index
+radon==5.1.0
+
+# Code style and duplicates
+pylint==2.13.9

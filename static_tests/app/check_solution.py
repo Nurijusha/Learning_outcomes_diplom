@@ -1,6 +1,7 @@
 import os
 import shutil
 import importlib.util
+from typing import Iterable
 
 import git
 from git import Repo
@@ -61,7 +62,12 @@ class SolutionTests:
             try:
                 logger.info(f'Начало проверки с файлом {lo_file}')
                 lo = lo_module.get_learning_outcome(self.file_list)
-                learning_outcomes.append(lo)
+                # If returned more then one learning outcome
+                if isinstance(lo, Iterable):
+                    for item in lo:
+                        learning_outcomes.append(item)
+                else:
+                    learning_outcomes.append(lo)
             except AttributeError:
                 logger.error(f'В файле {lo_file} отсутствует функция '
                              f'get_learning_outcome')
@@ -76,6 +82,7 @@ class SolutionTests:
 
     def _get_files_list(self):
         """ Recursive creating list with task files. """
+        self.file_list.clear()
         for root, dirs, files in os.walk(self.dir_with_repo, topdown=True):
             dirs[:] = [x for x in dirs if x.startswith('module_')]
             for file in files:

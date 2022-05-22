@@ -1,6 +1,6 @@
 FROM python:3.10
 
-LABEL author=rustamwho version=1 mood=wtf
+LABEL author=nurijusha version=1 mood=wtf
 
 WORKDIR /code
 COPY ./app .

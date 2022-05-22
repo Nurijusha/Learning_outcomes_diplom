@@ -21,8 +21,8 @@ def four(file_list: list):
     for operator, task in (('not', 'Модуль 10. Задача 2.'),
                            ('and', 'Модуль 10. Задача 2.'),
                            ('or', 'Модуль 1. Задача 1.')):
-        if search_with_func(file_list, pattern=operator,
-                            func=parsers.is_exists_pattern):
+        if search_with_func(file_list, operator=operator,
+                            func=parsers.is_exists_logic_operator):
             continue
         recommendations.append(
             Recommendation(
@@ -39,8 +39,8 @@ def three(file_list: list):
                            ('>=|<=', 'Модуль 4. Задача 1.'),
                            ('!=', 'Модуль 7. Задача 1.'),
                            ('==', 'Модуль 6. Задача 1.')):
-        if search_with_func(file_list, pattern=operator,
-                            func=parsers.is_exists_pattern):
+        if search_with_func(file_list, operator=operator,
+                            func=parsers.is_exists_logic_operator):
             continue
         recommendations.append(
             Recommendation(
