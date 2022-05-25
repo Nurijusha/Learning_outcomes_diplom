@@ -50,8 +50,11 @@ def run_test(solution_file: str, base_dir: str, test_input: str, expected: str,
         logger.error(f'ERROR when running with code {proc.returncode} - '
                      f'{proc.stderr}')
         return False, 'ERROR'
+    # Deleting unnecessary whitespaces in each line from output
+    output = proc.stdout.split('\n')
+    output = '\n'.join([line.strip() for line in output if line])
 
-    if str(proc.stdout.strip()) == str(expected):
+    if output == str(expected).strip():
         return True, 'ACCESS'
     else:
         return False, 'WRONG ANSWER'

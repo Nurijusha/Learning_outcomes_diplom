@@ -70,7 +70,7 @@ def three(file_list: list):
         module_info = get_module_info(file)
         if module_info.functions:
             is_using_functions = True
-            if any([func.arguments for func in c.functions]):
+            if any([func.arguments for func in module_info.functions]):
                 is_using_args = True
                 break
 

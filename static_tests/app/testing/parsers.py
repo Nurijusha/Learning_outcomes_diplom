@@ -115,7 +115,7 @@ def is_using_method(file_name: str, method_name: str) -> bool:
     :param method_name: name of the method to search
     :return: True if <method_name> method is using, else - False
     """
-    pattern = fr'^[^#\'\"\n]*\w+.{method_name}\(.*\).*$'
+    pattern = fr'^[^#\'\"\n]*[\w)]+.{method_name}\(.*\).*$'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -130,7 +130,7 @@ def is_exist_slices(file_name: str) -> bool:
     :param file_name:str of the file for matching
     :return:True if slices are exist, else - False
     """
-    pattern = fr'^[^#\'\"\n]*\w+\[\d*:\d*].*$'
+    pattern = fr'^[^#\'\"\n]*\w+\[[\d\w]*:[\d\w]*\].*$'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -160,7 +160,7 @@ def is_exists_indexing(file_name: str) -> bool:
     :param file_name: str of the file for matching
     :return: True if using string indexing is exists, else - False
     """
-    pattern = fr'^[^#\'\"\n]*(\w+\[\d+]).*$'
+    pattern = fr'^[^#\'\"\n]*(\w+\[[\d\w]+\]).*$'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -206,7 +206,7 @@ def is_exists_print_with_param(file_name: str, param: str) -> bool:
     :param param: param in print(). end or sep.
     :return: True if printing with param is exists, else - False
     """
-    pattern = fr'^[^#\'\"\n]*print\([^)]*\s*{param} ?= ?.+\)$'
+    pattern = fr'^[^#\n]*print\(.*{param} ?= ?.+\)$'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -257,7 +257,7 @@ def is_exists_input_with_prompt(file_name: str) -> bool:
     # ^[^#\'\"\n]*\w+ - строка начинается с переменной
     #  ?= ? - знак равно с двух сторон пробелы либо есть, либо нет
     # input\([\'\"]\w+.*[\'\"]\) - input(), внутри в кавычках строка
-    pattern = r'^[^#\'\"\n]*\w+ ?= ?input\([\'\"]\w+.*[\'\"]\)'
+    pattern = r'^[^#\'\"\n]*input\([\'\"]\w+.*[\'\"]\)'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -275,9 +275,9 @@ def is_exists_iteration_through_nested_list(file_name: str) -> bool:
     # for (?P<element1>\b\w+) in \w+: - итерация по объекту (for el1 in list:)
     # for \w+ in (?P=element1) - итерация по вложенному объекту с именем
     # (for el2 in el1)
-    pattern1 = (r'^[^#\'\"\n]*for (?P<element1>\b\w+) in \w+: '
+    pattern1 = (r'^[^#\'\"\n]*for (?P<element1>\b\w+) in \w+:\s*.*\s*'
                 r'for \w+ in (?P=element1)')
-    pattern2 = (r'^[^#\'\"\n]*for \w+ in range\(\w+\):\s*'
+    pattern2 = (r'^[^#\'\"\n]*for \w+ in range\(\w+\):\s*.*\s*'
                 r'for \w+ in range\(\w+\):')
     with open(file_name, 'r') as file:
         f = file.read()
@@ -296,7 +296,7 @@ def is_exists_indexing_nested_list(file_name: str) -> bool:
     :return: True if indexing is exists, else - False
     """
     # \w+\[\d+\]\[\d+\] - переменная[позиция][позиция]
-    pattern = r'^[^#\'\"\n]*\w+\[\d+\]\[\d+\]'
+    pattern = r'^[^#\n]*\w+\[[\d\w]+\]\[[\d\w]+\]'
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:
@@ -387,8 +387,8 @@ def is_exists_generator_of_sets(file_name: str) -> bool:
     :param file_name: str of the file for matching
     :return: True if generator of sets is exists, else - False
     """
-    pattern = (r'^[^#\'\"\n]*\w+ ?= ?\{(?P<element>\b\w+) '
-               r'for (?P=element) in \w+}')
+    pattern = (r'^[^#\'\"\n]*\{.*(?P<element>\b\w+).*'
+               r'for (?P=element) in \w+\}')
     with open(file_name, 'r') as file:
         match = re.findall(pattern, file.read(), flags=re.MULTILINE)
         if match:

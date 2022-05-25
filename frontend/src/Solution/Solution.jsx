@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Button from '@mui/material/Button';
 import {
+  useNavigate,
   useLocation
 } from "react-router-dom";
 import '../App.css';
@@ -19,6 +20,7 @@ import { Pie } from 'react-chartjs-2';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function Solution() {
+  const navigate = useNavigate();
   const location = useLocation();
   const [score, setScore] = useState({
     5: 0,
@@ -79,6 +81,7 @@ function Solution() {
             }}>Общие данные</h2>
             <div>URL репозитория: {location.state.github_url}</div>
             <div>Дата время проверки: {location.state.created_at}</div>
+            <Button variant="outlined" onClick={() => navigate("/solution-all")} >Посмотреть прошлые результаты</Button>
           </div>
         </div>
         <TableContainer component={Paper}>

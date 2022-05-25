@@ -10,6 +10,7 @@ import Congratulation from "./Congratulation/Congratulation";
 import SendEmail from "./SendEmail/SendEmail";
 import Main from "./Main/Main";
 import Solution from "./Solution/Solution";
+import SolutionAll from "./SolutionAll/SolutionAll";
 
 import './App.css';
 
@@ -34,6 +35,9 @@ function App() {
         </Routes>
         <Routes>
           <Route exact path="/solution" element={<Solution />} />
+        </Routes>
+        <Routes>
+          <Route exact path="/solution-all" element={<SolutionAll />} />
         </Routes>
       </div>
     </Router>

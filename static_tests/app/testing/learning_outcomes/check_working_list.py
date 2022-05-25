@@ -5,8 +5,8 @@ from testing.helpers import search_with_func
 
 def five(file_list: list):
     recommendations = []
-    if not search_with_func(file_list, func=parsers.is_using_method,
-                            method_name='ljust|rjust'):
+    if not search_with_func(file_list, func=parsers.is_exists_pattern,
+                            pattern=r'.ljust\(|.rjust\('):
         recommendations.append(
             Recommendation(
                 name=f'Умеет использовать функции ljust() или rjust()',
