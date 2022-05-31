@@ -164,12 +164,15 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 
+DOMAIN = os.environ.get('DOMAIN')
+SITE_NAME = os.environ.get('SITE_NAME')
+
 DJOSER = {
     'ACTIVATION_URL': 'activate-account/{uid}/{token}',
     'LOGIN_FIELD': 'username',
     'HIDE_USERS': True,
     'SEND_ACTIVATION_EMAIL': True,
-    'SEND_CONFIRMATION_EMAIL': True,
+    'SEND_CONFIRMATION_EMAIL': False,
 }
 
 SWAGGER_SETTINGS = {

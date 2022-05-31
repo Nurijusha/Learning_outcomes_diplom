@@ -181,7 +181,7 @@ def static_testing(self, github_url: str, solution_id: int):
 
     try:
         payload = {'github_url': github_url}
-        # Run dynamic testing
+        # Run static testing
         response = requests.get('http://static-tests:6001/do-static-tests/',
                                 json=payload,
                                 timeout=360)

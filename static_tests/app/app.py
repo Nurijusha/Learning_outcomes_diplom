@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 @app.route('/do-static-tests/', methods=['GET'])
 @app.route('/do-static-tests', methods=['GET'])
-def add_message():
+def static_testing():
     data = request.get_json()
 
     if not data:

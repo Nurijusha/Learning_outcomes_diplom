@@ -9,11 +9,11 @@ class ActivateUser(APIView):
 
     def get(self, request, uid, token):
         """ Activation url after register new user. """
-        payload = {'uid': uid, 'token': token}
-
-        url = "http://localhost:8000/users/activation/"
-        response = requests.post(url, data=payload)
-
+        """protocol = 'https://' if request.is_secure() else 'http://'
+        web_url = protocol + request.get_host()"""
+        post_url = "http://web:8000/users/activation/"
+        post_data = {'uid': uid, 'token': token}
+        response = requests.post(post_url, data=post_data)
         if response.status_code == 204:
             return Response({'Поздравляем'}, response.status_code)
         else:

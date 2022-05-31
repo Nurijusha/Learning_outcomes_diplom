@@ -10,10 +10,9 @@ def five(file_list: list):
     is_using_decorator = False
     for file in file_list:
         module_info = get_module_info(file)
-        if module_info.functions:
-            if any([func.decorators for func in module_info.functions]):
-                is_using_decorator = True
-                break
+        if 'Decorator[' in module_info.niceStringify():
+            is_using_decorator = True
+            break
     if not is_using_decorator:
         recommendations.append(
             Recommendation(

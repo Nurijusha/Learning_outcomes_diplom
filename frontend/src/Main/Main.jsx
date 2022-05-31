@@ -158,13 +158,13 @@ function Main() {
             <h3>Проверить репозиторий</h3>
             <TextField
               id="outlined-required"
-              label="Email"
+              label="Введите URL репозитория"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               fullWidth
               margin="normal"
             />
-            <Button variant="contained" onClick={checkUrl}>Проверить</Button>
+            <Button variant="outlined" onClick={checkUrl}>Проверить</Button>
           </div>
         </div>
       </div>

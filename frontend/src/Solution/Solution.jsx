@@ -42,7 +42,7 @@ function Solution() {
 
   const data = useMemo(() => {
     return {
-      labels: ['на 5', 'на 4', 'на 3', 'на 2'],
+      labels: ['на 2', 'на 3', 'на 4', 'на 5'],
       datasets: [
         {
           label: '# of Votes',

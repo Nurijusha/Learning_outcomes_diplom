@@ -81,11 +81,12 @@ class SolutionTests:
         shutil.rmtree(self.dir_with_repo)
 
     def _get_files_list(self):
-        """ Recursive creating list with task files. """
+        """ Recursive creating list with .py files. """
         self.file_list.clear()
         for root, dirs, files in os.walk(self.dir_with_repo, topdown=True):
-            dirs[:] = [x for x in dirs if x.startswith('module_')]
+            dirs[:] = [x for x in dirs if 'venv' not in x
+                       and 'pycache' not in x]
             for file in files:
-                if file.startswith('task_'):
+                if file.endswith('.py'):
                     self.file_list.append(os.path.join(root, file))
         return True

@@ -26,7 +26,7 @@ def get_score(percentage):
 
 @app.route('/do-dynamic-tests/', methods=['GET'])
 @app.route('/do-dynamic-tests', methods=['GET'])
-def add_message():
+def dynamic_testing():
     data = request.get_json()
 
     if not data:
@@ -44,11 +44,13 @@ def add_message():
     logger.info(f'New url: {url}')
 
     solution = SolutionTests(url)
-    try:
+    """try:
         result, access_time = solution.run_tests()
     except Exception:
         return jsonify({'github_url': url,
-                        'result': 'error', })
+                        'result': 'error', })"""
+
+    result, access_time = solution.run_tests()
 
     if isinstance(result, bool) or isinstance(access_time, bool):
         return jsonify({

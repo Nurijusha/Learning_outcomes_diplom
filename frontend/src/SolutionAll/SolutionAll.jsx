@@ -87,7 +87,7 @@ function SolutionAll() {
       labels,
       datasets: [
         {
-          label: 'Dataset 1',
+          label: 'Среднее значение образ. результата по времени',
           data: solutions.reverse().map((solution) => {
             const newscore = {
               5: 0,
@@ -98,8 +98,8 @@ function SolutionAll() {
             solution.learning_outcomes.map((value) => newscore[value.score] = newscore[value.score] + 1);
             return (getScore(newscore))
           }),
-          borderColor: 'green',
-          backgroundColor: 'green',
+          borderColor: 'black',
+          backgroundColor: 'blue',
         },
       ],
     };
@@ -118,8 +118,8 @@ function SolutionAll() {
         {
           label: 'прошлая оценка',
           data: solutions[1]?.learning_outcomes.map(solution => solution.score),
-          borderColor: 'red',
-          backgroundColor: 'red',
+          borderColor: 'purple',
+          backgroundColor: 'purple',
         }
       ],
     };
@@ -157,8 +157,8 @@ function SolutionAll() {
                 {
                   solutions.map((_) => (
                     <>
-                      <TableCell align="right">Дата/время</TableCell>
-                      <TableCell align="right">Уровень</TableCell>
+                      <TableCell align="left">Дата</TableCell>
+                      <TableCell align="left">Уровень</TableCell>
                     </>
                   ))
                 }
@@ -169,16 +169,16 @@ function SolutionAll() {
                 solutions[0]?.learning_outcomes.map((learning_outcome, i) => (
                   <TableRow
                     key={learning_outcome.name}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    sx={{ '&:last-child td, &:last-child th': { border: 10 } }}
                   >
                     <>
-                      <TableCell align="right">{i + 1}</TableCell>
-                      <TableCell align="right">{learning_outcome.name}</TableCell>
+                      <TableCell align="left">{i + 1}</TableCell>
+                      <TableCell align="left">{learning_outcome.name}</TableCell>
                       {
                         solutions.map(solution => (
                           <>
-                            <TableCell align="right">{new Date(solution?.created_at).toLocaleString()}</TableCell>
-                            <TableCell align="right">{solution.learning_outcomes[i]?.score}</TableCell>
+                            <TableCell align="left">{new Date(solution?.created_at).toLocaleString()}</TableCell>
+                            <TableCell align="center">{solution.learning_outcomes[i]?.score}</TableCell>
                           </>
                         ))
                       }

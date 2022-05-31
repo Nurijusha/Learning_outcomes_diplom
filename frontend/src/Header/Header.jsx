@@ -5,7 +5,7 @@ import '../App.css';
 function Header({ title, onClick }) {
   return (
     <div className="header">
-      <Button variant="contained" onClick={onClick}>{title}</Button>
+      <Button variant="outlined" onClick={onClick}>{title}</Button>
     </div>
   );
 }
